@@ -1,7 +1,6 @@
-var log = require('./log')
+var log = require('winston')
   , Loggly = require('winston-loggly').Loggly
-  , Log4stuff = require('winston-log4stuff').Log4stuff
-  , providers = require('./providers')
+  , localProviders = require('nitrogen-local-providers')
   , winston = require('winston');
 
 var config = null;
@@ -134,93 +133,31 @@ config.principals_cache_lifetime_minutes = 24 * 60; // minutes
 // refresh it with a new token via the response header.
 config.refresh_token_threshold = 0.1;
 
-// You can use Azure's Blob storage as a blob provider by uncommenting this configuration.
-//
-if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
-    console.log('archive_provider: using Azure Table storage.');
-    config.archive_providers = [ new providers.azure.AzureArchiveProvider(config) ];
-
-    console.log('blob_provider: using Azure Blob storage.');
-    config.blob_provider = new providers.azure.AzureBlobProvider(config);
-
-    config.images_endpoint = config.blob_provider.base_endpoint + "/images";
-} else {
-    console.log('archive_provider: using local storage.');
-    config.archive_providers = [ new providers.local.NullArchiveProvider(config) ];
-
-    console.log('blob_provider: using local storage.');
-    config.blob_storage_path = './storage';
-    config.blob_provider = new providers.local.LocalBlobProvider(config);
-}
+// By default the server uses a dev setup with local providers.
+// For production deployments, you should replace these with their scaleable counterparts.
 
 config.redis_server = {
     host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || 6379
 };
 
-console.log('cache_provider: Using Redis cache provider.');
-config.cache_provider = new providers.redis.RedisCacheProvider(config);
+console.log('archive_provider: using local storage.');
+config.archive_providers = [ new localProviders.NullArchiveProvider(config, log) ];
 
-if (process.env.SUBSCRIPTION_REDIS_SERVERS) {
+console.log('blob_provider: using local storage.');
+config.blob_storage_path = './storage';
+config.blob_provider = new localProviders.LocalBlobProvider(config, log);
 
-    // To use Redis as a realtime backend, the env variable SUBSCRIPTION_REDIS_SERVERS
-    // should be set to a JSON specification like this with the set of
-    // redis servers used for pubsub:
-    //
-    // { "redis1": { "port": 6379, "host": "redis1.myapp.com", id: "redis1" }
+console.log('cache_provider: Using memory cache provider.');
+config.cache_provider = new localProviders.MemoryCacheProvider(config, log);
 
-    console.log('pubsub_provider: using Redis pubsub.');
+console.log('pubsub_provider: using memory pubsub.');
+config.pubsub_provider = new localProviders.MemoryPubSubProvider(config, log);
 
-    config.redis_servers = JSON.parse(process.env.SUBSCRIPTION_REDIS_SERVERS);
-    config.pubsub_provider = new providers.redis.RedisPubSubProvider(config);
-} else if (process.env.AZURE_SERVICEBUS_NAMESPACE && process.env.AZURE_SERVICEBUS_ACCESS_KEY) {
-    console.log('pubsub_provider: using Service Bus pubsub.');
-    config.pubsub_provider = new providers.azure.AzurePubSubProvider(config);
-} else if (process.env.RABBITMQ_URL) {
-    console.log('pubsub_provider: using RabbitMQ pubsub.');
-    config.pubsub_provider = new providers.rabbitmq.RabbitMQPubSubProvider(config);
-} else {
-    console.log('pubsub_provider: using memory pubsub.');
-    config.pubsub_provider = new providers.local.MemoryPubSubProvider(config);
-}
-
-// Email provider configuration
-
-if (process.env.SENDGRID_API_USER && process.env.SENDGRID_API_KEY) {
-    console.log('email_provider: using sendgrid.');
-    config.email_provider = new providers.sendgrid.SendgridEmailProvider(config);
-} else {
-    console.log('email_provider: using null provider.');
-    config.email_provider = new providers.local.NullEmailProvider(config);
-}
-
-config.request_log_format = ':remote-addr - - [:date] ":method :url HTTP/:http-version" :status :res[content-length] :response-time ":referrer" ":user-agent"';
+console.log('email_provider: using null provider.');
+config.email_provider = new localProviders.NullEmailProvider(config, log);
 
 // You can use Loggly's log service by specifying these 4 environmental variables
-
-if (process.env.LOGGLY_SUBDOMAIN && process.env.LOGGLY_INPUT_TOKEN &&
-    process.env.LOGGLY_USERNAME && process.env.LOGGLY_PASSWORD) {
-
-    winston.add(Loggly, {
-        "subdomain": process.env.LOGGLY_SUBDOMAIN,
-        "inputToken": process.env.LOGGLY_INPUT_TOKEN,
-        "auth": {
-            "username": process.env.LOGGLY_USERNAME,
-            "password": process.env.LOGGLY_PASSWORD
-        }
-    });
-}
-
-log.remove(winston.transports.Console);
-log.add(winston.transports.Console, { colorize: true, timestamp: true, level: 'info' });
-
-// You can use Log4Stuff's service by adding this environment variable
-var log4stuffAppId = process.env.LOG4STUFF_APPLICATION_ID;
-if (log4stuffAppId) {
-    log.add(winston.transports.Log4stuff, {applicationId: log4stuffAppId});
-
-    console.log('Log4stuff enabled at http://log4stuff.com/app/' + log4stuffAppId);
-}
 
 // if you'd like additional indexes applied to messages at the database layer, you can specify them here.
 config.message_indexes = [

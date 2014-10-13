@@ -1,5 +1,5 @@
-exports.crossOrigin = require("./crossOrigin.js");
+exports.crossOrigin = require("./crossOrigin");
 
-exports.accessTokenAuth = require("./accessTokenAuth.js");
-exports.publicKeyAuth = require('./publicKeyAuth.js');
-exports.secretAuth = require('./secretAuth.js');
+exports.accessTokenAuth = require("./accessTokenAuth");
+exports.publicKeyAuth = require('./publicKeyAuth');
+exports.secretAuth = require('./secretAuth');

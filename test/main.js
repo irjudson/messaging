@@ -1,17 +1,18 @@
-var assert = require('assert') 
-  , config = require('../config')
-  , fixtures = require('./fixtures')
-  , log = require('../log')
-  , services = require('../services');
+var assert = require('assert')
+  , server = require('../server') 
+  , core = require('nitrogen-core')
+  , fixtures = require('./fixtures');
 
 before(function(done) {
-    config.pubsub_provider.resetForTest(function(err) {
-        assert.ifError(err);
+    console.log('start of before');
+    core.config.pubsub_provider.resetForTest(function(err) {
+        assert(!err);
+        console.log('after resetForTest');
 
         fixtures.reset(function(err) {
-            assert.ifError(err); 
+            assert(!err); 
 
-            log.debug("FIXTURES: creation finished...");
+            core.log.info("FIXTURES: creation finished...");
             done();
         });
     });

@@ -1,25 +1,21 @@
 var app = require('../../server')
   , assert = require('assert')
-  , config = require('../../config')
+  , core = require('nitrogen-core')
   , fixtures = require('../fixtures')
   , io = require('socket.io-client')
-  , log = require('../../log')
-  , models = require('../../models')
-  , mongoose = require('mongoose')
-  , request = require('request')
-  , services = require('../../services');
+  , request = require('request');
 
 describe('messages endpoint', function() {
 
     it('index should be not be accessible anonymously', function(done) {
-        request(config.messages_endpoint, function(err, resp, body) {
+        request(core.config.messages_endpoint, function(err, resp, body) {
             assert.equal(resp.statusCode, 401);
             done();
         });
     });
 
     it('index should return all messages', function(done) {
-        request({ url: config.messages_endpoint,
+        request({ url: core.config.messages_endpoint,
                   headers: { Authorization: fixtures.models.accessTokens.user.toAuthHeader() },
                   json: true }, function(err,resp,body) {
             assert.equal(resp.statusCode, 200);
@@ -33,7 +29,7 @@ describe('messages endpoint', function() {
     });
 
     it('index query should return only those messages', function(done) {
-        request({ url: config.messages_endpoint + "?type=ip",
+        request({ url: core.config.messages_endpoint + "?type=ip",
                   headers: { Authorization: fixtures.models.accessTokens.device.toAuthHeader() },
                   json: true }, function(err,resp,body) {
 
@@ -51,7 +47,7 @@ describe('messages endpoint', function() {
     });
 
     it('index should not be accessible with an invalid accessToken', function(done) {
-        request({ url: config.messages_endpoint,
+        request({ url: core.config.messages_endpoint,
             headers: { Authorization: "Bearer DEADBEEF" } }, function(err,resp,body) {
             assert.equal(resp.statusCode, 401);
             done();
@@ -59,14 +55,14 @@ describe('messages endpoint', function() {
     });
 
     it('show should be not be accessible without accessToken', function(done) {
-        request(config.messages_endpoint + '/' + fixtures.models.messages.deviceIp.id, function(err, resp, body) {
+        request(core.config.messages_endpoint + '/' + fixtures.models.messages.deviceIp.id, function(err, resp, body) {
             assert.equal(resp.statusCode, 401);
             done();
         });
     });
 
     it('create should be not be accessible without accessToken', function(done) {
-        request.post(config.messages_endpoint,
+        request.post(core.config.messages_endpoint,
             { json: [{ from: fixtures.models.principals.device.id,
                        type: "_custom"}] }, function(err, resp, body) {
             assert.equal(err, null);
@@ -77,7 +73,7 @@ describe('messages endpoint', function() {
 
     it('delete should be only accessible to service principal', function(done) {
         var query = encodeURIComponent(JSON.stringify({ "_id" : fixtures.models.messages.deviceIp.id }));
-        request.del({ url: config.messages_endpoint + "?q=" + query,
+        request.del({ url: core.config.messages_endpoint + "?q=" + query,
                       json: true,
                       headers: { Authorization: fixtures.models.accessTokens.device.toAuthHeader() } }, function(del_err, del_resp, del_body) {
 
@@ -91,7 +87,7 @@ describe('messages endpoint', function() {
     });
 
     it('should be able to create a message via socket.io', function(done) {
-        var socket = io.connect(config.subscriptions_endpoint, {
+        var socket = io.connect(core.config.subscriptions_endpoint, {
             query: "auth=" + encodeURIComponent(fixtures.models.accessTokens.device.token),
             'force new connection': true
         });
@@ -144,7 +140,7 @@ describe('messages endpoint', function() {
           , restPassed = false
           , isDone = false;
 
-        var socket = io.connect(config.subscriptions_endpoint, {
+        var socket = io.connect(core.config.subscriptions_endpoint, {
             query: "auth=" + encodeURIComponent(fixtures.models.accessTokens.device.token),
             'force new connection': true
         });
@@ -166,7 +162,7 @@ describe('messages endpoint', function() {
         });
 
         setTimeout(function() {
-            request.post(config.messages_endpoint, {
+            request.post(core.config.messages_endpoint, {
                 json: [{
                     from: fixtures.models.principals.device.id,
                     type: "_messageSubscriptionTest",
@@ -186,7 +182,7 @@ describe('messages endpoint', function() {
 
                     assert.notEqual(message_id, null);
 
-                    request({ url: config.messages_endpoint + '/' + message_id, json: true,
+                    request({ url: core.config.messages_endpoint + '/' + message_id, json: true,
                             headers: { Authorization: fixtures.models.accessTokens.device.toAuthHeader() } },
                         function(get_err, get_resp, get_body) {
 
@@ -199,7 +195,7 @@ describe('messages endpoint', function() {
                             assert.notEqual(get_body.message.created_at, 5.1);
 
                             var query = encodeURIComponent(JSON.stringify({ "_id" : message_id }));
-                            request.del({ url: config.messages_endpoint + "?q=" + query,
+                            request.del({ url: core.config.messages_endpoint + "?q=" + query,
                                     json: true,
                                     headers: { Authorization: fixtures.models.accessTokens.service.toAuthHeader() } },
                                     function(del_err, del_resp, del_body) {
@@ -217,6 +213,6 @@ describe('messages endpoint', function() {
                         }
                     );
                 });
-        }, config.pubsub_provider.MAX_LATENCY || 200);
+        }, core.config.pubsub_provider.MAX_LATENCY || 200);
     });
 });

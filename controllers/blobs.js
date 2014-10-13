@@ -1,25 +1,21 @@
-var config = require('../config')
-  , models = require('../models')
-  , mongodb = require('mongodb')
-  , services = require('../services')
-  , utils = require('../utils');
+var core = require('nitrogen-core');
 
 exports.show = function(req, res) {
-    res.setHeader('Cache-Control', 'max-age=' + config.blob_cache_lifetime);
+    res.setHeader('Cache-Control', 'max-age=' + core.config.blob_cache_lifetime);
 
-    services.blobs.stream(req.user, req.params.id, res, function(err, blob) {
-      if (err) return utils.handleError(res, err);
-      if (!blob) return utils.handleError(res, utils.notFoundError());
+    core.services.blobs.stream(req.user, req.params.id, res, function(err, blob) {
+      if (err) return core.utils.handleError(res, err);
+      if (!blob) return core.utils.handleError(res, utils.notFoundError());
     });
 };
 
 exports.create = function(req, res) {
-    var blob = new models.Blob({
+    var blob = new core.models.Blob({
         content_type: req.get('Content-Type'),
     });
 
-    services.blobs.create(req.user, blob, req, function(err, blob) {
-         if (err) return utils.handleError(err);
+    core.services.blobs.create(req.user, blob, req, function(err, blob) {
+         if (err) return core.utils.handleError(err);
 
          res.send({ blob: blob });
     });

@@ -1,8 +1,7 @@
 var assert = require('assert')
   , async = require('async')
-  , fixtures = require('../fixtures')
-  , models = require('../../models')
-  , services = require('../../services');
+  , core = require('nitrogen-core')
+  , fixtures = require('../fixtures');
 
 if (process.env.RUN_PERF_TESTS) {
 
