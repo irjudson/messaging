@@ -1,7 +1,6 @@
 var assert = require('assert')
   , async = require('async')
-  , core = require('nitrogen-core')
-  , fixtures = require('../fixtures');
+  , core = require('nitrogen-core');
 
 if (process.env.RUN_PERF_TESTS) {
 
@@ -15,13 +14,13 @@ if (process.env.RUN_PERF_TESTS) {
             for (var idx=0; idx < 100; idx++) {
                 var message = new models.Message({
                     ts: new Date(),
-                    from: fixtures.models.principals.device.id,
+                    from: core.fixtures.models.principals.device.id,
                     type: "_temperature",
-                    body: { 
+                    body: {
                         reading: Math.random() * 100.0,
-                        error: Math.random() 
+                        error: Math.random()
                     },
-                    visible_to: [ fixtures.models.principals.device.id, fixtures.models.principals.user.id ]
+                    visible_to: [ core.fixtures.models.principals.device.id, core.fixtures.models.principals.user.id ]
                 });
 
                 messages.push(message);
@@ -30,14 +29,14 @@ if (process.env.RUN_PERF_TESTS) {
             // create one interesting command message...
             var command = new models.Message({
                 ts: new Date(),
-                from: fixtures.models.principals.user.id,
-                to: fixtures.models.principals.device.id,
+                from: core.fixtures.models.principals.user.id,
+                to: core.fixtures.models.principals.device.id,
                 type: "_thermometerCommand",
-                body: { 
-                    command: 'measure' 
+                body: {
+                    command: 'measure'
                 },
-                tags: [ '_command:' + fixtures.models.principals.device.id ],
-                visible_to: [ fixtures.models.principals.device.id ]
+                tags: [ '_command:' + core.fixtures.models.principals.device.id ],
+                visible_to: [ core.fixtures.models.principals.device.id ]
             });
 
             messages.push(command);
@@ -46,19 +45,19 @@ if (process.env.RUN_PERF_TESTS) {
             for(var idx=0; idx < 100; idx++) {
                 messages.push(new models.Message({
                     ts: new Date(),
-                    from: fixtures.models.principals.user.id,
-                    to: fixtures.models.principals.user.id,
+                    from: core.fixtures.models.principals.user.id,
+                    to: core.fixtures.models.principals.user.id,
                     type: "_thermometerCommand",
-                    body: { 
-                        command: 'measure' 
+                    body: {
+                        command: 'measure'
                     },
-                    tags: [ '_command:' + fixtures.models.principals.user.id ],
-                    visible_to: [ fixtures.models.principals.device.id, fixtures.models.principals.user.id ]
+                    tags: [ '_command:' + core.fixtures.models.principals.user.id ],
+                    visible_to: [ core.fixtures.models.principals.device.id, core.fixtures.models.principals.user.id ]
                 }));
             }
 
             models.Message.create(messages, callback);
-            //services.messages.createMany(fixtures.models.principals.device, messages, callback);
+            //services.messages.createMany(core.fixtures.models.principals.device, messages, callback);
         }
 
         it('able to still performantly fetch commands amongst bulk telemetry', function(done) {
@@ -80,11 +79,11 @@ if (process.env.RUN_PERF_TESTS) {
 
                 var findStart = new Date();
 
-                services.messages.find(fixtures.models.principals.device, {
-                    tags: "_command:" + fixtures.models.principals.device.id
+                services.messages.find(core.fixtures.models.principals.device, {
+                    tags: "_command:" + core.fixtures.models.principals.device.id
                 }, { sort: { ts: 1 } }, function(err, commandMessages) {
                     assert.ifError(err);
-                    
+
                     var findMillis = new Date().getTime() - findStart.getTime();
                     console.log('find milliseconds: ' + findMillis);
 

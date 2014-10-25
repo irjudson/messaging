@@ -25,22 +25,22 @@ if (process.env.NODE_ENV === "production") {
 
 } else if (process.env.NODE_ENV === "test") {
     config = {
-        external_port: 3050,
-        internal_port: 3050,
+        external_port: 3053,
+        internal_port: 3053,
         protocol: 'http',
         mongodb_connection_string: "mongodb://localhost/nitrogen_test",
         web_admin_uri: "http://localhost:9000"
     };
 } else {
     config = {
-        external_port: 3030,
+        external_port: 3033,
         protocol: 'http',
         mongodb_connection_string: "mongodb://localhost/nitrogen_dev",
         web_admin_uri: "http://localhost:9000"
     };
 }
 
-config.internal_port = config.internal_port || 3030;
+config.internal_port = config.internal_port || 3033;
 config.external_port = config.external_port || 443;
 config.protocol = process.env.PROTOCOL || config.protocol || "https";
 config.host = process.env.HOST_NAME || config.host || "localhost";
@@ -175,6 +175,12 @@ config.validate_schemas = true;
 
 // Email address that the service should use for administrative emails.
 config.service_email_address = "admin@nitrogen.io";
+
+// Migration configuration
+config.migrations_relative_path = "/node_modules/nitrogen-core/migrations/";
+
+// Test fixture location configuration
+config.blob_fixture_path = 'node_modules/nitrogen-core/test/fixtures/images/image.jpg';
 
 config.service_applications = [
     { instance_id: 'claim-agent', module: 'claim-agent' },

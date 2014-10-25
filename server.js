@@ -19,7 +19,7 @@ core.log = require('winston');
 
 if (process.env.LOGGLY_SUBDOMAIN && process.env.LOGGLY_INPUT_TOKEN &&
     process.env.LOGGLY_USERNAME && process.env.LOGGLY_PASSWORD) {
-    
+
     core.log.add(Loggly, {
         "subdomain": process.env.LOGGLY_SUBDOMAIN,
         "inputToken": process.env.LOGGLY_INPUT_TOKEN,
@@ -31,7 +31,7 @@ if (process.env.LOGGLY_SUBDOMAIN && process.env.LOGGLY_INPUT_TOKEN &&
 }
 
 core.log.remove(core.log.transports.Console);
-core.log.add(core.log.transports.Console, { colorize: true, timestamp: true, level: 'debug' });
+core.log.add(core.log.transports.Console, { colorize: true, timestamp: true, level: 'info' });
 
 core.log.info("connecting to mongodb instance: " + core.config.mongodb_connection_string);
 mongoose.connect(core.config.mongodb_connection_string);
