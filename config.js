@@ -1,6 +1,7 @@
 var log = require('winston')
   , Loggly = require('winston-loggly').Loggly
   , localProviders = require('nitrogen-local-providers')
+  , redisProviders = require('nitrogen-redis-providers')
   , winston = require('winston');
 
 var config = null;
@@ -133,13 +134,17 @@ config.principals_cache_lifetime_minutes = 24 * 60; // minutes
 // refresh it with a new token via the response header.
 config.refresh_token_threshold = 0.1;
 
+config.redis_servers = {
+    'redis': {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: process.env.REDIS_PORT || 6379
+    }
+};
+
+config.redis_server = config.redis_servers['redis'];
+
 // By default the server uses a dev setup with local providers.
 // For production deployments, you should replace these with their scaleable counterparts.
-
-config.redis_server = {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: process.env.REDIS_PORT || 6379
-};
 
 console.log('archive_provider: using local storage.');
 config.archive_providers = [ new localProviders.NullArchiveProvider(config, log) ];
@@ -151,8 +156,8 @@ config.blob_provider = new localProviders.LocalBlobProvider(config, log);
 console.log('cache_provider: Using memory cache provider.');
 config.cache_provider = new localProviders.MemoryCacheProvider(config, log);
 
-console.log('pubsub_provider: using memory pubsub.');
-config.pubsub_provider = new localProviders.MemoryPubSubProvider(config, log);
+console.log('pubsub_provider: using redis pubsub.');
+config.pubsub_provider = new redisProviders.RedisPubSubProvider(config, log);
 
 console.log('email_provider: using null provider.');
 config.email_provider = new localProviders.NullEmailProvider(config, log);
