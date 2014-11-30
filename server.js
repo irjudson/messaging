@@ -110,6 +110,15 @@ mongoose.connection.once('open', function () {
         // static files (static/ is mapped to the root API url for any path not already covered above)
         app.use(express.static(path.join(__dirname, '/static')));
 
+        // user serialization and deserialization
+        passport.serializeUser(function(user, done) {
+            done(null, user.id);
+        });
+
+        passport.deserializeUser(function(id, done) {
+            core.services.principals.findByIdCached(core.services.principals.servicePrincipal, id, done);
+        });
+
         core.log.info("service has initialized API endpoints");
 
         mongoose.connection.on('error', core.log.error);
