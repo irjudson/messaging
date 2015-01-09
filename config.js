@@ -156,8 +156,8 @@ console.log('blob_provider: using local storage.');
 config.blob_storage_path = './storage';
 config.blob_provider = new localProviders.LocalBlobProvider(config, log);
 
-console.log('cache_provider: Using memory cache provider.');
-config.cache_provider = new localProviders.MemoryCacheProvider(config, log);
+console.log('cache_provider: Using redis cache provider.');
+config.cache_provider = new redisProviders.RedisCacheProvider(config, log);
 
 console.log('pubsub_provider: using redis pubsub.');
 config.pubsub_provider = new redisProviders.RedisPubSubProvider(config, log);
