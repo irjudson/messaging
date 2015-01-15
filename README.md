@@ -1,6 +1,13 @@
 # Consumption
 
-This service provides consumption services to clients: querying messages out of the message stream and realtime message subscription services.
+This service provides consumption services: querying message streams and realtime message subscription services.
+
+## Installation
+
+1. `git clone https://github.com/nitrogenjs/frontdoor`
+2. `cd frontdoor`
+3. `npm install`
+4. `node server.js`
 
 ## How to contribute
 
