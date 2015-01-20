@@ -1,5 +1,6 @@
 var log = require('winston')
   , Loggly = require('winston-loggly').Loggly
+  , azureProviders = require('nitrogen-azure-providers')
   , localProviders = require('nitrogen-local-providers')
   , redisProviders = require('nitrogen-redis-providers')
   , winston = require('winston');
@@ -149,12 +150,22 @@ if (!redisServersJson) {
 // By default the server uses a dev setup with local providers.
 // For production deployments, you should replace these with their scaleable counterparts.
 
-console.log('archive_provider: using local storage.');
-config.archive_providers = [ new localProviders.NullArchiveProvider(config, log) ];
+if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
+    console.log('archive_provider: using Azure Table storage.');
+    config.archive_providers = [ new azureProviders.AzureArchiveProvider(config, log) ];
 
-console.log('blob_provider: using local storage.');
-config.blob_storage_path = './storage';
-config.blob_provider = new localProviders.LocalBlobProvider(config, log);
+    console.log('blob_provider: using Azure Blob storage.');
+    config.blob_provider = new azureProviders.AzureBlobProvider(config, log);
+
+    config.images_endpoint = config.blob_provider.base_endpoint + "/images";
+} else {
+    console.log('archive_provider: using local storage.');
+    config.archive_providers = [ new localProviders.NullArchiveProvider(config, log) ];
+
+    console.log('blob_provider: using local storage.');
+    config.blob_storage_path = './storage';
+    config.blob_provider = new localProviders.LocalBlobProvider(config, log);
+}
 
 console.log('cache_provider: Using redis cache provider.');
 config.cache_provider = new redisProviders.RedisCacheProvider(config, log);

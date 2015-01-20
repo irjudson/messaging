@@ -9,8 +9,8 @@
   "version": "0.3.0",
   "licenses": [
     {
-      "type": "Apache",
-      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
     }
   ],
   "engines": {
@@ -24,6 +24,7 @@
     "mongoose": "~3.8.17",
     "newrelic": "^1.7.5",
     "nitrogen": "~0.2",
+    "nitrogen-azure-providers": "~0.3",
     "nitrogen-core": "~0.3",
     "nitrogen-local-providers": "~0.3",
     "nitrogen-redis-providers": "~0.3",
