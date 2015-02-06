@@ -145,7 +145,7 @@ if (!redisServersJson) {
         }
     };
 } else {
-    config.redis_servers = JSON.parse(redisServersJson);
+    config.redis_servers = eval(redisServersJson);
 }
 
 // By default the server uses a dev setup with local providers.
