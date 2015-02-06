@@ -63,7 +63,6 @@ mongoose.connection.once('open', function () {
     core.log.info("service connected to mongodb.");
 
     core.services.initialize(function (err) {
-        console.log('here: ' + err);
         if (err) return core.log.error("service failed to initialize: " + err);
         if (!core.services.principals.servicePrincipal) return core.log.error("Service principal not available after initialize.");
 
