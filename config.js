@@ -136,17 +136,12 @@ config.principals_cache_lifetime_minutes = 24 * 60; // minutes
 // refresh it with a new token via the response header.
 config.refresh_token_threshold = 0.1;
 
-var redisServersJson = process.env.REDIS_SERVERS;
-if (!redisServersJson) {
-    config.redis_servers = {
-        "redis": {
-            "host": "localhost",
-            "port": 6379
-        }
-    };
-} else {
-    config.redis_servers = eval(redisServersJson);
-}
+config.redis_servers = {
+    "n2-redis-1": {
+        "host": process.env.REDIS_HOST || "localhost",
+        "port": process.env.REDIS_PORT || 6379
+    }
+};
 
 // By default the server uses a dev setup with local providers.
 // For production deployments, you should replace these with their scaleable counterparts.
