@@ -132,6 +132,9 @@ config.default_message_indexed_lifetime = 7; // days
 config.permissions_for_cache_lifetime_minutes = 24 * 60; // minutes
 config.principals_cache_lifetime_minutes = 24 * 60; // minutes
 
+// In the azure storage provider, flatten the JSON body of messages to "columns"
+config.flatten_messages = true;
+
 // when the token gets within 10% (default) of config.access_token_lifetime,
 // refresh it with a new token via the response header.
 config.refresh_token_threshold = 0.1;
