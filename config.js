@@ -158,6 +158,11 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     config.blob_provider = new azureProviders.AzureBlobProvider(config, log);
 
     config.images_endpoint = config.blob_provider.base_endpoint + "/images";
+    
+    // Eventhub configuration - add to archive providers for now.
+    if (process.env.AZURE_SERVICE_BUS && process.env.AZURE_SAS_KEY_NAME && process.env.AZURE_SAS_KEY && process.env.AZURE_EVENTHUB_NAME) {
+        config.archive_providers.push(new azureProviders.AzureEventHubProvider(config, log));
+    }
 } else {
     console.log('archive_provider: using local storage.');
     config.archive_providers = [ new localProviders.NullArchiveProvider(config, log) ];
