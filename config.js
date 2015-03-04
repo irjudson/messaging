@@ -132,8 +132,9 @@ config.default_message_indexed_lifetime = 7; // days
 config.permissions_for_cache_lifetime_minutes = 24 * 60; // minutes
 config.principals_cache_lifetime_minutes = 24 * 60; // minutes
 
-// In the azure storage provider, flatten the JSON body of messages to "columns"
+// Provider configurations
 config.flatten_messages = true;
+config.archive_providers = [];
 
 // when the token gets within 10% (default) of config.access_token_lifetime,
 // refresh it with a new token via the response header.
@@ -152,7 +153,7 @@ config.redis_servers = {
 
 if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     console.log('archive_provider: using Azure Table storage.');
-    config.archive_providers = [ new azureProviders.AzureArchiveProvider(config, log) ];
+    config.archive_providers.push(new azureProviders.AzureArchiveProvider(config, log));
 
     console.log('blob_provider: using Azure Blob storage.');
     config.blob_provider = new azureProviders.AzureBlobProvider(config, log);
@@ -161,11 +162,12 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     
     // Eventhub configuration - add to archive providers for now.
     if (process.env.AZURE_SERVICE_BUS && process.env.AZURE_SAS_KEY_NAME && process.env.AZURE_SAS_KEY && process.env.AZURE_EVENTHUB_NAME) {
+        config.flatten_messages = false;
         config.archive_providers.push(new azureProviders.AzureEventHubProvider(config, log));
     }
 } else {
     console.log('archive_provider: using local storage.');
-    config.archive_providers = [ new localProviders.NullArchiveProvider(config, log) ];
+    config.archive_providers.push(new localProviders.NullArchiveProvider(config, log));
 
     console.log('blob_provider: using local storage.');
     config.blob_storage_path = './storage';
