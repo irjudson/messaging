@@ -4,8 +4,8 @@ This service provides consumption services: querying message streams and realtim
 
 ## Installation
 
-1. `git clone https://github.com/nitrogenjs/frontdoor`
-2. `cd frontdoor`
+1. `git clone https://github.com/nitrogenjs/consumption`
+2. `cd consumption`
 3. `npm install`
 4. `node server.js`
 
