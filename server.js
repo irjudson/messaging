@@ -33,9 +33,6 @@ if (process.env.LOGGLY_SUBDOMAIN && process.env.LOGGLY_INPUT_TOKEN &&
 core.log.remove(core.log.transports.Console);
 core.log.add(core.log.transports.Console, { colorize: true, timestamp: true, level: 'info' });
 
-core.log.info("connecting to mongodb instance: " + core.config.mongodb_connection_string);
-mongoose.connect(core.config.mongodb_connection_string);
-
 app.use(express.logger(core.config.request_log_format));
 app.use(express.compress());
 app.use(express.bodyParser());
@@ -58,70 +55,63 @@ app.use(middleware.crossOrigin);
 app.enable('trust proxy');
 app.disable('x-powered-by');
 
-// only open endpoints when we have a connection to MongoDB.
-mongoose.connection.once('open', function () {
-    core.log.info("service connected to mongodb.");
+core.services.initialize(function (err) {
+    if (err) return core.log.error("service failed to initialize: " + err);
+    if (!core.services.principals.servicePrincipal) return core.log.error("Service principal not available after initialize.");
 
-    core.services.initialize(function (err) {
-        if (err) return core.log.error("service failed to initialize: " + err);
-        if (!core.services.principals.servicePrincipal) return core.log.error("Service principal not available after initialize.");
+    server.listen(core.config.internal_port);
+    core.services.subscriptions.attach(server);
 
-        server.listen(core.config.internal_port);
-        core.services.subscriptions.attach(server);
+    core.log.info("service has initialized itself, exposing api externally at: " + core.config.api_endpoint + " and internally on port: " + core.config.internal_port);
 
-        core.log.info("service has initialized itself, exposing api externally at: " + core.config.api_endpoint + " and internally on port: " + core.config.internal_port);
+    // REST API ENDPOINTS
 
-        // REST API ENDPOINTS
+    // blob endpoints
+    if (core.config.blob_provider) {
+        app.get(core.config.blobs_path + '/:id',    middleware.accessTokenAuth,        controllers.blobs.show);
+        app.post(core.config.blobs_path,            middleware.accessTokenAuth,        controllers.blobs.create);
+    } else {
+        log.warn("not exposing blob endpoints because no blob provider configured (see config.js).");
+    }
 
-        // blob endpoints
-        if (core.config.blob_provider) {
-            app.get(core.config.blobs_path + '/:id',    middleware.accessTokenAuth,        controllers.blobs.show);
-            app.post(core.config.blobs_path,            middleware.accessTokenAuth,        controllers.blobs.create);
-        } else {
-            log.warn("not exposing blob endpoints because no blob provider configured (see config.js).");
-        }
+    // ops endpoints
+    app.get(core.config.ops_path + '/health',                                          controllers.ops.health);
 
-        // ops endpoints
-        app.get(core.config.ops_path + '/health',                                          controllers.ops.health);
+    // permissions endpoints
+    app.get(core.config.permissions_path,           middleware.accessTokenAuth,        controllers.permissions.index);
+    app.post(core.config.permissions_path,          middleware.accessTokenAuth,        controllers.permissions.create);
+    app.delete(core.config.permissions_path + '/:id', middleware.accessTokenAuth,      controllers.permissions.remove);
 
-        // permissions endpoints
-        app.get(core.config.permissions_path,           middleware.accessTokenAuth,        controllers.permissions.index);
-        app.post(core.config.permissions_path,          middleware.accessTokenAuth,        controllers.permissions.create);
-        app.delete(core.config.permissions_path + '/:id', middleware.accessTokenAuth,      controllers.permissions.remove);
+    // message endpoints
+    app.get(core.config.messages_path + '/:id',     middleware.accessTokenAuth,        controllers.messages.show);
+    app.get(core.config.messages_path,              middleware.accessTokenAuth,        controllers.messages.index);
+    app.post(core.config.messages_path,             middleware.accessTokenAuth,        controllers.messages.create);
+    app.delete(core.config.messages_path,           middleware.accessTokenAuth,        controllers.messages.remove);
 
-        // message endpoints
-        app.get(core.config.messages_path + '/:id',     middleware.accessTokenAuth,        controllers.messages.show);
-        app.get(core.config.messages_path,              middleware.accessTokenAuth,        controllers.messages.index);
-        app.post(core.config.messages_path,             middleware.accessTokenAuth,        controllers.messages.create);
-        app.delete(core.config.messages_path,           middleware.accessTokenAuth,        controllers.messages.remove);
-
-        // client libraries
-        app.get('/client/nitrogen.js', function(req, res) {
-            res.contentType('application/javascript');
-            res.send(core.services.messages.clients['nitrogen.js']);
-        });
-
-        app.get('/client/nitrogen-min.js', function(req, res) {
-            res.contentType('application/javascript');
-            res.send(core.services.messages.clients['nitrogen-min.js']);
-        });
-
-        // static files (static/ is mapped to the root API url for any path not already covered above)
-        app.use(express.static(path.join(__dirname, '/static')));
-
-        // user serialization and deserialization
-        passport.serializeUser(function(user, done) {
-            done(null, user.id);
-        });
-
-        passport.deserializeUser(function(id, done) {
-            core.services.principals.findByIdCached(core.services.principals.servicePrincipal, id, done);
-        });
-
-        core.log.info("service has initialized API endpoints");
-
-        mongoose.connection.on('error', core.log.error);
+    // client libraries
+    app.get('/client/nitrogen.js', function(req, res) {
+        res.contentType('application/javascript');
+        res.send(core.services.messages.clients['nitrogen.js']);
     });
+
+    app.get('/client/nitrogen-min.js', function(req, res) {
+        res.contentType('application/javascript');
+        res.send(core.services.messages.clients['nitrogen-min.js']);
+    });
+
+    // static files (static/ is mapped to the root API url for any path not already covered above)
+    app.use(express.static(path.join(__dirname, '/static')));
+
+    // user serialization and deserialization
+    passport.serializeUser(function(user, done) {
+        done(null, user.id);
+    });
+
+    passport.deserializeUser(function(id, done) {
+        core.services.principals.findByIdCached(core.services.principals.servicePrincipal, id, done);
+    });
+
+    core.log.info("service has initialized API endpoints");
 });
 
 exports = module.exports = app;
