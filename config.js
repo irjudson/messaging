@@ -162,6 +162,7 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     
     // Eventhub configuration - add to archive providers for now.
     if (process.env.AZURE_SERVICE_BUS && process.env.AZURE_SAS_KEY_NAME && process.env.AZURE_SAS_KEY && process.env.AZURE_EVENTHUB_NAME) {
+        config.flatten_messages = false;
         config.archive_providers.push(new azureProviders.AzureEventHubProvider(config, log));
     }
 } else {
