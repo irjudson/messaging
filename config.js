@@ -28,22 +28,22 @@ if (process.env.NODE_ENV === "production") {
 
 } else if (process.env.NODE_ENV === "test") {
     config = {
-        external_port: 3053,
-        internal_port: 3053,
+        external_port: 3051,
+        internal_port: 3051,
         protocol: process.env.PROTOCOL || "http",
         mongodb_connection_string: "mongodb://localhost/nitrogen_test",
         web_admin_uri: "http://localhost:9000"
     };
 } else {
     config = {
-        external_port: 3033,
+        external_port: 3031,
         protocol: process.env.PROTOCOL || "http",
         mongodb_connection_string: "mongodb://localhost/nitrogen_dev",
         web_admin_uri: "http://localhost:9000"
     };
 }
 
-config.internal_port = config.internal_port || 3033;
+config.internal_port = config.internal_port || 3031;
 config.external_port = config.external_port || 443;
 config.protocol = process.env.PROTOCOL || config.protocol || "https";
 config.host = process.env.HOST_NAME || config.host || "localhost";
@@ -159,7 +159,7 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     config.blob_provider = new azureProviders.AzureBlobProvider(config, log);
 
     config.images_endpoint = config.blob_provider.base_endpoint + "/images";
-    
+
     // Eventhub configuration - add to archive providers for now.
     if (process.env.AZURE_SERVICE_BUS && process.env.AZURE_SAS_KEY_NAME && process.env.AZURE_SAS_KEY && process.env.AZURE_EVENTHUB_NAME) {
         config.flatten_messages = false;

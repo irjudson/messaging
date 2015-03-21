@@ -36,6 +36,9 @@ core.log.add(core.log.transports.Console, { colorize: true, timestamp: true, lev
 app.use(express.logger(core.config.request_log_format));
 app.use(express.compress());
 app.use(express.bodyParser());
+
+// TODO: Try running without all the cookie stuff.
+
 app.use(express.cookieParser());
 app.use(express.cookieSession({
     secret: core.config.user_session_secret,
@@ -60,11 +63,12 @@ core.services.initialize(function (err) {
     if (!core.services.principals.servicePrincipal) return core.log.error("Service principal not available after initialize.");
 
     server.listen(core.config.internal_port);
-    core.services.subscriptions.attach(server);
 
     core.log.info("service has initialized itself, exposing api externally at: " + core.config.api_endpoint + " and internally on port: " + core.config.internal_port);
 
     // REST API ENDPOINTS
+
+    // TODO: Drop blob endpoints.
 
     // blob endpoints
     if (core.config.blob_provider) {
@@ -77,6 +81,8 @@ core.services.initialize(function (err) {
     // ops endpoints
     app.get(core.config.ops_path + '/health',                                          controllers.ops.health);
 
+    // TODO: Move permissions to the device registry
+
     // permissions endpoints
     app.get(core.config.permissions_path,           middleware.accessTokenAuth,        controllers.permissions.index);
     app.post(core.config.permissions_path,          middleware.accessTokenAuth,        controllers.permissions.create);
@@ -87,20 +93,14 @@ core.services.initialize(function (err) {
     app.get(core.config.messages_path,              middleware.accessTokenAuth,        controllers.messages.index);
     app.post(core.config.messages_path,             middleware.accessTokenAuth,        controllers.messages.create);
     app.delete(core.config.messages_path,           middleware.accessTokenAuth,        controllers.messages.remove);
+    app.post(core.config.messages_path,             middleware.accessTokenAuth,        controllers.messages.create);
 
-    // client libraries
-    app.get('/client/nitrogen.js', function(req, res) {
-        res.contentType('application/javascript');
-        res.send(core.services.messages.clients['nitrogen.js']);
-    });
+    // TODO: Add mqtt endpoint
 
-    app.get('/client/nitrogen-min.js', function(req, res) {
-        res.contentType('application/javascript');
-        res.send(core.services.messages.clients['nitrogen-min.js']);
-    });
+    // subscription endpoints
+    core.services.subscriptions.attach(server);
 
-    // static files (static/ is mapped to the root API url for any path not already covered above)
-    app.use(express.static(path.join(__dirname, '/static')));
+    // TODO: Do we need user serialization and deserialization?
 
     // user serialization and deserialization
     passport.serializeUser(function(user, done) {

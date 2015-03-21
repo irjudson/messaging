@@ -6,6 +6,30 @@ var app = require('../../server')
 
 describe('messages endpoint', function() {
 
+    it('should create and fetch a message', function(done) {
+        request.post(core.config.messages_endpoint, {
+            json: [{
+                type: "_messageTest",
+                body: {
+                    reading: 5.1
+                }
+            }],
+            headers: {
+                Authorization: core.fixtures.models.accessTokens.user.toAuthHeader()
+            }
+        }, function(err, resp, body) {
+            assert(!err);
+            assert.equal(resp.statusCode, 200);
+
+            body.messages.forEach(function(message) {
+                assert.equal(message.body.reading, 5.1);
+                assert(message.id);
+            });
+
+            done();
+        });
+    });
+
     it('index should be not be accessible anonymously', function(done) {
         request(core.config.messages_endpoint, function(err, resp, body) {
             assert.equal(resp.statusCode, 401);
