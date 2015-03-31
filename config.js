@@ -165,6 +165,10 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
         config.flatten_messages = false;
         config.archive_providers.push(new azureProviders.AzureEventHubProvider(config, log));
     }
+
+    console.log('pubsub_provider: using Azure queues pubsub.');
+    console.dir(azureProviders);
+    config.pubsub_provider = new azureProviders.AzureQueuesPubSubProvider(config, log);
 } else {
     console.log('archive_provider: using local storage.');
     config.archive_providers.push(new localProviders.NullArchiveProvider(config, log));
@@ -172,13 +176,13 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     console.log('blob_provider: using local storage.');
     config.blob_storage_path = './storage';
     config.blob_provider = new localProviders.LocalBlobProvider(config, log);
+
+    console.log('pubsub_provider: using Redis pubsub.');
+    config.pubsub_provider = new redisProviders.RedisPubSubProvider(config, log);
 }
 
 console.log('cache_provider: Using redis cache provider.');
 config.cache_provider = new redisProviders.RedisCacheProvider(config, log);
-
-console.log('pubsub_provider: using redis pubsub.');
-config.pubsub_provider = new redisProviders.RedisPubSubProvider(config, log);
 
 console.log('email_provider: using null provider.');
 config.email_provider = new localProviders.NullEmailProvider(config, log);
@@ -207,10 +211,5 @@ config.migrations_relative_path = "/node_modules/nitrogen-core/migrations/";
 
 // Test fixture location configuration
 config.blob_fixture_path = 'node_modules/nitrogen-core/test/fixtures/images/image.jpg';
-
-config.service_applications = [
-    { instance_id: 'claim-agent', module: 'claim-agent' },
-    { instance_id: 'matcher', module: 'nitrogen-matcher' }
-];
 
 module.exports = config;
