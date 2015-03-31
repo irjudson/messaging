@@ -167,7 +167,6 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     }
 
     console.log('pubsub_provider: using Azure queues pubsub.');
-    console.dir(azureProviders);
     config.pubsub_provider = new azureProviders.AzureQueuesPubSubProvider(config, log);
 } else {
     console.log('archive_provider: using local storage.');
