@@ -10,7 +10,6 @@ var express = require('express')
   , controllers = require('./controllers')
   , LocalStrategy = require('passport-local').Strategy
   , middleware = require('./middleware')
-  , mongoose = require('mongoose')
   , passport = require('passport')
   , path = require('path');
 
