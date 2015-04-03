@@ -2,6 +2,7 @@ var log = require('winston')
   , Loggly = require('winston-loggly').Loggly
   , azureProviders = require('nitrogen-azure-providers')
   , localProviders = require('nitrogen-local-providers')
+  , mongodbProviders = require('nitrogen-mongodb-providers')
   , redisProviders = require('nitrogen-redis-providers')
   , winston = require('winston');
 
@@ -147,9 +148,6 @@ config.redis_servers = {
         "password": process.env.REDIS_PASSWORD
     }
 };
-
-// By default the server uses a dev setup with local providers.
-// For production deployments, you should replace these with their scaleable counterparts.
 
 if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     console.log('archive_provider: using Azure Table storage.');
