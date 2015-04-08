@@ -134,7 +134,7 @@ config.permissions_for_cache_lifetime_minutes = 24 * 60; // minutes
 config.principals_cache_lifetime_minutes = 24 * 60; // minutes
 
 // Provider configurations
-config.flatten_messages = true;
+config.flatten_messages = false;
 config.archive_providers = [];
 
 // when the token gets within 10% (default) of config.access_token_lifetime,
@@ -151,7 +151,10 @@ config.redis_servers = {
 
 if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     console.log('archive_provider: using Azure Table storage.');
-    config.archive_providers.push(new azureProviders.AzureArchiveProvider(config, log));
+
+    var azureTableStorageProvider = new azureProviders.AzureTableStorageProvider(config, log);
+    config.archive_providers.push(azureTableStorageProvider);
+    config.primary_archive_provider = azureTableStorageProvider;
 
     console.log('blob_provider: using Azure Blob storage.');
     config.blob_provider = new azureProviders.AzureBlobProvider(config, log);
@@ -160,7 +163,6 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
 
     // Eventhub configuration - add to archive providers for now.
     if (process.env.AZURE_SERVICE_BUS && process.env.AZURE_SAS_KEY_NAME && process.env.AZURE_SAS_KEY && process.env.AZURE_EVENTHUB_NAME) {
-        config.flatten_messages = false;
         config.archive_providers.push(new azureProviders.AzureEventHubProvider(config, log));
     }
 
@@ -168,7 +170,10 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     config.pubsub_provider = new azureProviders.AzureQueuesPubSubProvider(config, log);
 } else {
     console.log('archive_provider: using local storage.');
-    config.archive_providers.push(new localProviders.NullArchiveProvider(config, log));
+
+    var nullArchiveProvider = new localProviders.NullArchiveProvider(config, log);
+    config.archive_providers.push(nullArchiveProvider);
+    config.primary_archive_provider = nullArchiveProvider;
 
     console.log('blob_provider: using local storage.');
     config.blob_storage_path = './storage';

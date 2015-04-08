@@ -17,9 +17,7 @@ var express = require('express')
 core.config = require('./config');
 core.log = require('winston');
 
-var mongoDBArchiveProvider = new mongodbProviders.MongoDBArchiveProvider(core);
-core.config.archive_providers.push(mongoDBArchiveProvider);
-core.config.primary_archive_provider = mongoDBArchiveProvider;
+core.config.pubsub_provider.services = core.services;
 
 if (process.env.LOGGLY_SUBDOMAIN && process.env.LOGGLY_INPUT_TOKEN &&
     process.env.LOGGLY_USERNAME && process.env.LOGGLY_PASSWORD) {
