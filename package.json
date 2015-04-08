@@ -23,7 +23,7 @@
     "moment": "^2.7.0",
     "newrelic": "^1.18.1",
     "nitrogen": "^0.2.24",
-    "nitrogen-azure-providers": "~0.3.27",
+    "nitrogen-azure-providers": "~0.3.28",
     "nitrogen-core": "~0.3.27",
     "nitrogen-local-providers": "~0.3",
     "nitrogen-mongodb-providers": "~0.3",
