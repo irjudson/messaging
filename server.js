@@ -39,7 +39,9 @@ app.use(express.logger(core.config.request_log_format));
 app.use(express.compress());
 app.use(express.bodyParser());
 
-// TODO: Try running without all the cookie stuff.
+if (process.env.USE_MONGODB_ARCHIVE_PROVIDER) {
+    core.config.archive_providers.unshift(new mongodbProviders.MongoDBArchiveProvider(core));
+}
 
 app.use(express.cookieParser());
 app.use(express.cookieSession({
