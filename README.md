@@ -19,7 +19,7 @@ This service provides consumption services: querying message streams and realtim
 The Nitrogen project is housed in a set of GitHub projects:
 
 1. [registry](https://github.com/nitrogenjs/registry): Device identity and discovery services.
-2. [ingestion](https://github.com/nitrogenjs/messaging): Messaging services.
+2. [messaging](https://github.com/nitrogenjs/messaging): Messaging services.
 3. [client](https://github.com/nitrogenjs/client): JavaScript client library for building Nitrogen devices and applications.
 4. [admin](https://github.com/nitrogenjs/admin): Web admin tool for working with the Nitrogen service.
 5. [device](https://github.com/nitrogenjs/devices): Device principals for common pieces of hardware.
