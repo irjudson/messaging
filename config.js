@@ -2,6 +2,7 @@ var log = require('winston')
   , Loggly = require('winston-loggly').Loggly
   , azureProviders = require('nitrogen-azure-providers')
   , localProviders = require('nitrogen-local-providers')
+  , mongodbProviders = require('nitrogen-mongodb-providers')
   , redisProviders = require('nitrogen-redis-providers')
   , winston = require('winston');
 
@@ -121,7 +122,7 @@ config.auth_code_lifetime_seconds = 60 * 60; // seconds (default: 1 hour)
 config.device_secret_bytes = 128;
 
 config.access_token_bytes = 32;
-config.access_token_lifetime = 1; // days
+config.access_token_lifetime = 7; // days
 config.access_token_signing_key = process.env.ACCESS_TOKEN_SIGNING_KEY || '12345678901234567890123456789012';
 
 config.blob_cache_lifetime = 2592000; // seconds
@@ -133,7 +134,7 @@ config.permissions_for_cache_lifetime_minutes = 24 * 60; // minutes
 config.principals_cache_lifetime_minutes = 24 * 60; // minutes
 
 // Provider configurations
-config.flatten_messages = true;
+config.flatten_messages = false;
 config.archive_providers = [];
 
 // when the token gets within 10% (default) of config.access_token_lifetime,
@@ -148,12 +149,12 @@ config.redis_servers = {
     }
 };
 
-// By default the server uses a dev setup with local providers.
-// For production deployments, you should replace these with their scaleable counterparts.
-
 if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
     console.log('archive_provider: using Azure Table storage.');
-    config.archive_providers.push(new azureProviders.AzureArchiveProvider(config, log));
+
+    var azureTableStorageProvider = new azureProviders.AzureTableStorageProvider(config, log);
+    config.archive_providers.push(azureTableStorageProvider);
+    config.primary_archive_provider = azureTableStorageProvider;
 
     console.log('blob_provider: using Azure Blob storage.');
     config.blob_provider = new azureProviders.AzureBlobProvider(config, log);
@@ -162,23 +163,28 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
 
     // Eventhub configuration - add to archive providers for now.
     if (process.env.AZURE_SERVICE_BUS && process.env.AZURE_SAS_KEY_NAME && process.env.AZURE_SAS_KEY && process.env.AZURE_EVENTHUB_NAME) {
-        config.flatten_messages = false;
         config.archive_providers.push(new azureProviders.AzureEventHubProvider(config, log));
     }
+
+    console.log('pubsub_provider: using Azure queues pubsub.');
+    config.pubsub_provider = new azureProviders.AzureQueuesPubSubProvider(config, log);
 } else {
     console.log('archive_provider: using local storage.');
-    config.archive_providers.push(new localProviders.NullArchiveProvider(config, log));
+
+    var nullArchiveProvider = new localProviders.NullArchiveProvider(config, log);
+    config.archive_providers.push(nullArchiveProvider);
+    config.primary_archive_provider = nullArchiveProvider;
 
     console.log('blob_provider: using local storage.');
     config.blob_storage_path = './storage';
     config.blob_provider = new localProviders.LocalBlobProvider(config, log);
+
+    console.log('pubsub_provider: using Redis pubsub.');
+    config.pubsub_provider = new redisProviders.RedisPubSubProvider(config, log);
 }
 
 console.log('cache_provider: Using redis cache provider.');
 config.cache_provider = new redisProviders.RedisCacheProvider(config, log);
-
-console.log('pubsub_provider: using redis pubsub.');
-config.pubsub_provider = new redisProviders.RedisPubSubProvider(config, log);
 
 console.log('email_provider: using null provider.');
 config.email_provider = new localProviders.NullEmailProvider(config, log);
@@ -207,10 +213,5 @@ config.migrations_relative_path = "/node_modules/nitrogen-core/migrations/";
 
 // Test fixture location configuration
 config.blob_fixture_path = 'node_modules/nitrogen-core/test/fixtures/images/image.jpg';
-
-config.service_applications = [
-    { instance_id: 'claim-agent', module: 'claim-agent' },
-    { instance_id: 'matcher', module: 'nitrogen-matcher' }
-];
 
 module.exports = config;

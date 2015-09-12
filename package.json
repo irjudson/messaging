@@ -1,9 +1,9 @@
 {
-  "name": "consumption",
-  "homepage": "https://github.com/nitrogenjs/consumption",
+  "name": "messaging",
+  "homepage": "https://github.com/nitrogenjs/messaging",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nitrogenjs/consumption.git"
+    "url": "https://github.com/nitrogenjs/messaging.git"
   },
   "author": "Tim Park <timfpark@gmail.com>",
   "version": "0.3.0",
@@ -17,16 +17,16 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "async": "~0.2.10",
-    "express": "~3.5.3",
-    "jsonwebtoken": "~1.1.2",
-    "moment": "~2.7.0",
-    "mongoose": "~3.8.22",
-    "newrelic": "^1.7.5",
-    "nitrogen": "~0.2",
-    "nitrogen-azure-providers": "~0.3",
-    "nitrogen-core": "~0.3",
+    "async": "^0.2.10",
+    "express": "^3.20.2",
+    "jsonwebtoken": "^1.3.0",
+    "moment": "^2.7.0",
+    "newrelic": "^1.18.1",
+    "nitrogen": "^0.2.24",
+    "nitrogen-azure-providers": "~0.3.31",
+    "nitrogen-core": "~0.3.27",
     "nitrogen-local-providers": "~0.3",
+    "nitrogen-mongodb-providers": "~0.3",
     "nitrogen-redis-providers": "~0.3",
     "node-sbus-amqp10": "0.0.15",
     "passport": "~0.2.1",
@@ -34,14 +34,14 @@
     "passport-local": "~1.0.0",
     "passport-publickey": "~1.0.3",
     "redis": "^0.10.3",
-    "request": "~2.36.0",
-    "revalidator": "~0.1.8",
+    "request": "^2.36.0",
+    "revalidator": "^0.1.8",
     "sendgrid": "^1.1.1",
     "sift": "0.0.18",
-    "socket.io": "~0.9.17",
-    "streamifier": "~0.1.0",
-    "winston": "~0.7.3",
-    "winston-loggly": "~1.0.2"
+    "socket.io": "^0.9.17",
+    "streamifier": "^0.1.1",
+    "winston": "^0.7.3",
+    "winston-loggly": "^1.0.4"
   },
   "devDependencies": {
     "mocha": "~1.20.1",

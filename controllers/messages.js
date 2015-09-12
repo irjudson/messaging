@@ -3,7 +3,10 @@ var async = require('async')
 
 exports.create = function(req, res) {
     core.services.messages.createMany(req.user, req.body, function(err, messages) {
-        if (err) return core.utils.handleError(res, err);
+        if (err) {
+            core.log.error("core.services.messages.createMany returned error: " + err);
+            return core.utils.handleError(res, err);
+        }
 
         res.send({ "messages": messages });
     });

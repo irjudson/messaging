@@ -10,12 +10,14 @@ var express = require('express')
   , controllers = require('./controllers')
   , LocalStrategy = require('passport-local').Strategy
   , middleware = require('./middleware')
-  , mongoose = require('mongoose')
+  , mongodbProviders = require('nitrogen-mongodb-providers')
   , passport = require('passport')
   , path = require('path');
 
 core.config = require('./config');
 core.log = require('winston');
+
+core.config.pubsub_provider.services = core.services;
 
 if (process.env.LOGGLY_SUBDOMAIN && process.env.LOGGLY_INPUT_TOKEN &&
     process.env.LOGGLY_USERNAME && process.env.LOGGLY_PASSWORD) {
@@ -37,7 +39,9 @@ app.use(express.logger(core.config.request_log_format));
 app.use(express.compress());
 app.use(express.bodyParser());
 
-// TODO: Try running without all the cookie stuff.
+if (process.env.USE_MONGODB_ARCHIVE_PROVIDER) {
+    core.config.archive_providers.unshift(new mongodbProviders.MongoDBArchiveProvider(core));
+}
 
 app.use(express.cookieParser());
 app.use(express.cookieSession({
@@ -92,8 +96,7 @@ core.services.initialize(function (err) {
     app.get(core.config.messages_path + '/:id',     middleware.accessTokenAuth,        controllers.messages.show);
     app.get(core.config.messages_path,              middleware.accessTokenAuth,        controllers.messages.index);
     app.post(core.config.messages_path,             middleware.accessTokenAuth,        controllers.messages.create);
-    app.delete(core.config.messages_path,           middleware.accessTokenAuth,        controllers.messages.remove);
-    app.post(core.config.messages_path,             middleware.accessTokenAuth,        controllers.messages.create);
+    // app.delete(core.config.messages_path,           middleware.accessTokenAuth,        controllers.messages.remove);
 
     // TODO: Add mqtt endpoint
 
