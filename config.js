@@ -171,9 +171,13 @@ if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_KEY) {
 } else {
     console.log('archive_provider: using local storage.');
 
-    var nullArchiveProvider = new localProviders.NullArchiveProvider(config, log);
-    config.archive_providers.push(nullArchiveProvider);
-    config.primary_archive_provider = nullArchiveProvider;
+    var mongoDBArchiveProvider = new mongodbProviders.MongoDBArchiveProvider(config, log);
+    config.archive_providers.push(mongoDBArchiveProvider);
+    config.primary_archive_provider = mongoDBArchiveProvider;
+
+    // var nullArchiveProvider = new localProviders.NullArchiveProvider(config, log);
+    // config.archive_providers.push(nullArchiveProvider);
+    // config.primary_archive_provider = nullArchiveProvider;
 
     console.log('blob_provider: using local storage.');
     config.blob_storage_path = './storage';
