@@ -2,7 +2,7 @@ var log = require('winston')
   , Loggly = require('winston-loggly').Loggly
   , azureProviders = require('nitrogen-azure-providers')
   , localProviders = require('nitrogen-local-providers')
-  , mongodbProviders = require('nitrogen-mongodb-providers')
+  , mongodbProviders = require('@irjudson/nitrogen-mongodb-providers')
   , redisProviders = require('nitrogen-redis-providers')
   , winston = require('winston');
 
