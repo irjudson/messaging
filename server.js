@@ -10,7 +10,7 @@ var express = require('express')
   , controllers = require('./controllers')
   , LocalStrategy = require('passport-local').Strategy
   , middleware = require('./middleware')
-  , mongodbProviders = require('nitrogen-mongodb-providers')
+  , mongodbProviders = require('@irjudson/nitrogen-mongodb-providers')
   , passport = require('passport')
   , path = require('path');
 
