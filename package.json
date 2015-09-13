@@ -26,7 +26,7 @@
     "nitrogen-azure-providers": "~0.3.31",
     "nitrogen-core": "~0.3.27",
     "nitrogen-local-providers": "~0.3",
-    "nitrogen-mongodb-providers": "~0.3",
+    "@irjudson/nitrogen-mongodb-providers": "~0.3",
     "nitrogen-redis-providers": "~0.3",
     "node-sbus-amqp10": "0.0.15",
     "passport": "~0.2.1",
